@@ -1,2 +1,3 @@
-# French-document-classification
-Implement MLP
+# MLP Implementation
+
+French + English documents classification task
