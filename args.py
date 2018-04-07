@@ -19,32 +19,34 @@ def parse_args():
     parser = argparse.ArgumentParser(formatter_class=DefaultsAndTypesHelpFormatter)
 
     # Everything that loaded from disk
-    parser.add_argument('--source_path', type=str, default='./eddy_data/',
+    parser.add_argument('--source_path', type=str, default='../eddy_data/',
                         help='Path to raw data')
-    parser.add_argument('--embedding_path', type=str, default='./embedding/',
+    parser.add_argument('--embedding_path', type=str, default='../embedding/',
                         help='Path to embedding')
 
-    parser.add_argument('--en_train_path', type=str, default='processed_data/en_train.dat',
-                        help='Path to english train document')
-    parser.add_argument('--en_test_path', type=str, default='processed_data/en_test.dat',
+    parser.add_argument('--train_path', type=str, default='../processed_data/train.dat',
+                        help='Path to train document')
+    parser.add_argument('--en_test_path', type=str, default='../processed_data/en_test.dat',
                         help='Path to english test document')
-    parser.add_argument('--fr_train_path', type=str, default='processed_data/fr_train.dat',
-                        help='Path to french train document')
-    parser.add_argument('--fr_test_path', type=str, default='processed_data/fr_test.dat',
+    parser.add_argument('--fr_test_path', type=str, default='../processed_data/fr_test.dat',
                         help='Path to french test document')
     parser.add_argument('--load_net', type=str, default='', help='Path to trained model (For continue Training)')
 
     # Models Parameters
-    parser.add_argument('--n_emb', type=int, default=300, help='Document dimension')
     parser.add_argument('--n_hidden', type=int, default=1024, help='Feature extraction layer dimension')
     parser.add_argument('--n_mlp_layers', type=int, default=1, help='Number of MLP layers')
+    
+    # Learning Parameters
     parser.add_argument('--batch_size', type=int, default=124, help='batch size')
-    parser.add_argument('--n_epoch', type=int, default=150, help='number of training epochs')
-
-    parser.add_argument('--optimizer', type=str, default='Adam',
+    parser.add_argument('--n_epoch', type=int, default=600, help='number of training epochs')
+    parser.add_argument('--optimizer', type=str, default='RMSprop',
                         help='Optimizer type: must choose SGD or Adam. Default Adam')
     parser.add_argument('--lr', type=float, help='Learning rate, default 0.0001', default=0.0001)
+    parser.add_argument('--dropout', type=float, default=0.8, help='probability of dropout')
     parser.add_argument('--lr_anneal', type=float, help='Parameter for learning rate annealing', default=2)
+    
+
+    # Save
     parser.add_argument('--save_dir', type=str, default='saved_nets', help='Model saving directory')
     parser.add_argument('--save_name', type=str, default='model', help='Model saving prefix name')
 

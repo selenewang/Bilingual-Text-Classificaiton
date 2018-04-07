@@ -12,7 +12,7 @@ import scipy
 
 
 class MLP(nn.Module):
-    def __init__(self, n_mlp_layer, n_hidden, n_class, n_emb, dropout=0.3, device='cpu', ngpu=1):
+    def __init__(self, n_mlp_layer, n_hidden, n_class, n_emb, dropout, device='cpu', ngpu=1):
         super(MLP, self).__init__()
         self.n_mlp_layer = n_mlp_layer
         self.n_hidden = n_hidden

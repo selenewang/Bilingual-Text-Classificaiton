@@ -96,45 +96,44 @@ if __name__ == '__main__':
 
     print('english train')
     en_train_df = read_dataset(en_train_file)
-    print(en_train_df.head)
     en_train_y, en_train_x, en_vectorizor = process_dataset(en_train_df, en_dictionary, None)
 
     n_classes = len(set(en_train_y))
     label_encoder = dict(zip(list(set(en_train_y)), np.arange(n_classes)))
-    en_train_y = [label_encoder[i] for i in en_train_y]
+    en_train_y = np.array([label_encoder[i] for i in en_train_y])
 
     print('english test')
     en_test_df = read_dataset(en_test_file)
     en_test_y, en_test_x, _ = process_dataset(en_test_df, en_dictionary, en_vectorizor)
-    en_test_y = [label_encoder[i] for i in en_test_y]
+    en_test_y = np.array([label_encoder[i] for i in en_test_y])
 
     print('french train')
     fr_train_df = read_dataset(fr_train_file)
     fr_train_y, fr_train_x, fr_vectorizor = process_dataset(fr_train_df, fr_dictionary, None)
-    fr_train_y = [label_encoder[i] for i in fr_train_y]
+    fr_train_y = np.array([label_encoder[i] for i in fr_train_y])
 
 
     print('french test')
     fr_test_df = read_dataset(fr_test_file)
-    fr_test_y, fr_test_x, _ = process_dataset(fr_test_file, fr_dictionary, fr_vectorizor)
-    fr_test_y = [label_encoder[i] for i in fr_test_y]
+    fr_test_y, fr_test_x, _ = process_dataset(fr_test_df, fr_dictionary, fr_vectorizor)
+    fr_test_y = np.array([label_encoder[i] for i in fr_test_y])
 
     try:
-        os.makedirs("processed_data")
+        os.makedirs("../processed_data")
     except OSError:
         pass
 
 
     print('writing to pickle')
-    with open(args.en_train_path, "wb") as f:
-        pickle.dump(np.array(en_train_y), f)
-        pickle.dump(en_train_x, f)
+    train_x = np.concatenate((en_train_x, fr_train_x), axis=0)
+    train_y = np.concatenate((en_train_y, fr_train_y), axis=0)
+
+    with open(args.train_path, "wb") as f:
+        pickle.dump(train_y, f)
+        pickle.dump(train_x, f)
     with open(args.en_test_path, "wb") as f:
-        pickle.dump(np.array(en_test_y), f)
+        pickle.dump(en_test_y, f)
         pickle.dump(en_test_x, f)
-    with open(args.fr_train_path, "wb") as f:
-        pickle.dump(np.array(fr_train_y), f)
-        pickle.dump(fr_train_x, f)
     with open(args.fr_test_path, "wb") as f:
-        pickle.dump(np.array(fr_test_y), f)
+        pickle.dump(fr_test_y, f)
         pickle.dump(fr_test_x, f)
