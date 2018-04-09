@@ -9,6 +9,10 @@ def net_evaluation(net, kf, x, y, n=10):
     for _, index in kf:
         y_batch = torch.autograd.Variable(torch.from_numpy(y[index]).long())
         x_batch = torch.autograd.Variable(torch.from_numpy(x[index]).float())
+        
+        if net.device == 'gpu':
+            y_batch = y_batch.cuda()
+
         output = net(x_batch)
         total += y_batch.size(0)
 

@@ -8,11 +8,10 @@ import time
 
 import numpy as np
 import torch.nn.parallel
-from sklearn.model_selection import StratifiedShuffleSplit, train_test_split
+from sklearn.model_selection import StratifiedShuffleSplit
 from torch import optim
 
 from model import MLP
-
 import eval
 
 def get_minibatches_idx(n, minibatch_size, shuffle=False):
@@ -122,17 +121,18 @@ def train(lr=args.lr,
     print('-' * 100)
 
     # Define optimizer
-    assert args.optimizer in ['SGD', 'Adam', "RMSprop"], 'Please choose either SGD or Adam'
+    assert args.optimizer in ['SGD', 'Adam', "RMSprop", "LBFGS", "Rprop", "ASGD", "Adadelta", "Adagrad", "Adamax"], 'Please choose either SGD or Adam'
     if args.optimizer == 'SGD':
         optimizer = optim.SGD(lr=lr, params=filter(lambda p: p.requires_grad, net.parameters()), momentum=0.9)
-    elif args.optimizer == 'Adam':
-        optimizer = optim.Adam(filter(lambda p: p.requires_grad, net.parameters()), lr=lr)
-    elif args.optimizer == 'RMSprop':
-        optimizer = optim.RMSprop(params=filter(lambda p: p.requires_grad, net.parameters()), lr=lr)
     else:
-        print('Optimizer cannot be defined')
+        optimizer = getattr(optim,args.optimizer)(params=filter(lambda p: p.requires_grad, net.parameters()), lr=lr)
+    
+    lambda1 = lambda epoch: epoch // 30
+    lambda2 = lambda epoch: 0.95 ** epoch
+    scheduler = optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=[lambda2])
     try:
         for eidx in range(max_epochs):
+            scheduler.step()
             # print('Training mode on: ' ,net.training)
             start_time = time.time()
             n_samples = 0
@@ -141,7 +141,8 @@ def train(lr=args.lr,
 
             for _, train_index in kf:
                 # Remove gradient from previous batch
-                net.zero_grad()
+                #net.zero_grad()
+                optimizer.zero_grad()
                 uidx += 1
                 y_batch = torch.autograd.Variable(torch.from_numpy(train_y[train_index]).long())
                 x_batch = torch.autograd.Variable(torch.from_numpy(train_x[train_index]).float())
@@ -181,7 +182,7 @@ def train(lr=args.lr,
                     else:
                         if top_1_acc > best_valid_acc:
                             print('Best validation performance so far, saving model parameters')
-                            print("*"*50)
+                            print("*" * 50)
                             bad_counter = 0  # reset counter
                             best_valid_acc = top_1_acc
                             best_state_dict = net.state_dict()
@@ -196,12 +197,9 @@ def train(lr=args.lr,
                             print('Learning rate annealed to: ', lr)
                             print('*' * 100)
                             if args.optimizer == 'SGD':
-                                optimizer = optim.SGD(lr=lr, params=filter(lambda p: p.requires_grad, net.parameters()),
-                                                      momentum=0.9)
-                            elif args.optimizer == 'Adam':
-                                optimizer = optim.Adam(filter(lambda p: p.requires_grad, net.parameters()), lr=lr)
-                            elif args.optimizer == 'RMSprop':
-                                optimizer = optim.RMSprop(filter(lambda p: p.requires_grad, net.parameters()), lr=lr)
+                                optimizer = optim.SGD(lr=lr, params=filter(lambda p: p.requires_grad, net.parameters()), momentum=0.9)
+                            else:
+                                optimizer = getattr(optim,args.optimizer)(params = filter(lambda p: p.requires_grad, net.parameters()), lr=lr)
                             if bad_counter > patience:
                                 print('-' * 100)
                                 print('Early Stop!')

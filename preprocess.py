@@ -77,8 +77,8 @@ if __name__ == '__main__':
     args = parse_args()
 
     print('loading vectors')
-    en_dictionary = FastVector(vector_file=args.embedding_path+"wiki.multi.en.vec")
-    fr_dictionary = FastVector(vector_file=args.embedding_path+'wiki.multi.fr.vec')
+    en_dictionary = FastVector(vector_file=args.en_embedding)
+    fr_dictionary = FastVector(vector_file=args.fr_embedding)
     #print('transforming vectors')
     #fr_dictionary.apply_transform('alignment_matrices/fr.txt')
 
@@ -119,7 +119,7 @@ if __name__ == '__main__':
     fr_test_y = np.array([label_encoder[i] for i in fr_test_y])
 
     try:
-        os.makedirs("../processed_data")
+        os.makedirs(args.preprocessed_path)
     except OSError:
         pass
 
