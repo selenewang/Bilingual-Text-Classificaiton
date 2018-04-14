@@ -1,6 +1,6 @@
 import os
 import pickle
-
+from unidecode import unidecode
 import numpy as np
 import pandas as pd
 from fasttext import FastVector
@@ -10,9 +10,24 @@ from sklearn.cross_decomposition import CCA
 import argparse
 from args import parse_args
 
+import codecs
+import sys
+import csv
+
+csv.field_size_limit(sys.maxsize)
+
+def read_fr_dataset(path):
+    with codecs.open(path, 'r', encoding='utf-8') as csvfile:
+        df = pd.DataFrame()
+        csv_reader = csv.reader(csvfile, delimiter='\t')
+        for i, row in enumerate(csv_reader):
+            df = df.append(pd.DataFrame([row]))
+    df.columns = ['label', 'data']
+    df = df[1:]
+    return df
 
 def read_dataset(infile):
-    data = pd.read_csv(infile, sep='\t', encoding='utf8')
+    data = pd.read_csv(infile, sep='\t', encoding='utf-8')
     data.columns = ['label', 'data']
     return data
 
@@ -51,7 +66,6 @@ def cca(src_dict, tgt_dict, bi_dict, dim=250):
     cca_model.fit(src_mat, tgt_mat)
     return cca_model.transform(src_dict.embed, tgt_dict.embed)
 
-
 def doc_embedding(df, lang_vec, tfidf=True, tfidfvec=None):
     if tfidf:
         if not tfidfvec:
@@ -59,10 +73,10 @@ def doc_embedding(df, lang_vec, tfidf=True, tfidfvec=None):
             weights = tfidfvec.fit_transform(df['data'])
         else:
             weights = tfidfvec.transform(df['data'])
-
+            
         doc_emb = weights.dot(lang_vec.embed)
     else:
-        doc_emb = np.zeros(len(df), 300)
+        doc_emb = np.zeros([len(df), 300])
         doc = df['data'].apply(lambda x: x.lower().split())
 
         for idx, sent in enumerate(doc):
@@ -79,6 +93,7 @@ if __name__ == '__main__':
     print('loading vectors')
     en_dictionary = FastVector(vector_file=args.en_embedding)
     fr_dictionary = FastVector(vector_file=args.fr_embedding)
+
     #print('transforming vectors')
     #fr_dictionary.apply_transform('alignment_matrices/fr.txt')
 
@@ -108,13 +123,13 @@ if __name__ == '__main__':
     en_test_y = np.array([label_encoder[i] for i in en_test_y])
 
     print('french train')
-    fr_train_df = read_dataset(fr_train_file)
+    fr_train_df = read_fr_dataset(fr_train_file)
     fr_train_y, fr_train_x, fr_vectorizor = process_dataset(fr_train_df, fr_dictionary, None)
     fr_train_y = np.array([label_encoder[i] for i in fr_train_y])
 
 
     print('french test')
-    fr_test_df = read_dataset(fr_test_file)
+    fr_test_df = read_fr_dataset(fr_test_file)
     fr_test_y, fr_test_x, _ = process_dataset(fr_test_df, fr_dictionary, fr_vectorizor)
     fr_test_y = np.array([label_encoder[i] for i in fr_test_y])
 

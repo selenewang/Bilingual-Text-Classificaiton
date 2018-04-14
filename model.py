@@ -30,10 +30,10 @@ class MLP(nn.Module):
                 nn.Dropout(self.dropout),
                 nn.Tanh(),
                 nn.Linear(self.n_hidden, self.n_class),
-                nn.LogSoftmax())
+                nn.LogSoftmax(dim=1))
         else:
             assert n_mlp_layer > 1, 'Number of mlp layers must be at least 1'
-            self.mlp_layers = [('Batch normalization', nn.BatchNorm1d(self.emb_size)),
+            self.mlp_layers = [('Batch normalization', nn.BatchNorm1d(self.n_emb)),
                                ('MLP0', self.linear1),
                                ('Activation0', nn.Tanh())]
             for i in range(1, n_mlp_layer, 1):
@@ -41,7 +41,7 @@ class MLP(nn.Module):
                 self.mlp_layers.append(('Activation%d' % i, nn.Tanh()))
             self.mlp_layers.append(('Dropout', nn.Dropout(self.dropout)))
             self.mlp_layers.append(('Decoder', nn.Linear(self.n_hidden, self.n_class)))
-            self.mlp_layers.append('LogSoftmax', nn.LogSoftmax())
+            self.mlp_layers.append(('LogSoftmax', nn.LogSoftmax()))
             self.main = nn.Sequential(OrderedDict(self.mlp_layers))
 
     def forward(self, x):

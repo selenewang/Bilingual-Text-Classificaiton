@@ -125,11 +125,13 @@ def train(lr=args.lr,
     if args.optimizer == 'SGD':
         optimizer = optim.SGD(lr=lr, params=filter(lambda p: p.requires_grad, net.parameters()), momentum=0.9)
     else:
-        optimizer = getattr(optim,args.optimizer)(params=filter(lambda p: p.requires_grad, net.parameters()), lr=lr)
+        optimizer = getattr(optim, args.optimizer)(params=filter(lambda p: p.requires_grad, net.parameters()), lr=lr)
     
-    lambda1 = lambda epoch: epoch // 30
-    lambda2 = lambda epoch: 0.95 ** epoch
+    #lambda1 = lambda epoch: epoch // 30
+    lambda2 = lambda epoch: 0.98 ** epoch
     scheduler = optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=[lambda2])
+    #scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=max_epochs)
+    #scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'max')
     try:
         for eidx in range(max_epochs):
             scheduler.step()
@@ -174,6 +176,8 @@ def train(lr=args.lr,
                     print('Evaluation on validation set: ')
                     kf_valid = get_minibatches_idx(len(valid_y), batch_size)
                     top_1_acc, top_n_acc = eval.net_evaluation(net, kf_valid, valid_x, valid_y)
+                    #scheduler.step(top_1_acc)
+ 
                     # Save best performance state_dict for testing
                     if best_valid_acc is None:
                         best_valid_acc = top_1_acc

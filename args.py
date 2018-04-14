@@ -23,7 +23,7 @@ def parse_args():
                         help='Path to raw data')
     parser.add_argument('--embedding_path', type=str, default='../embedding/',
                         help='Path to embedding')
-    parser.add_argument('--preprocessed_path', type=str, default='../preprocessed/',
+    parser.add_argument('--preprocessed_path', type=str, default='../preprocessed_data/',
                         help='Path to preprocessed data')
 
     parser.add_argument('--train', type=str, default='train_muse.dat',
@@ -40,12 +40,12 @@ def parse_args():
     
     # Learning Parameters
     parser.add_argument('--batch_size', type=int, default=124, help='batch size')
-    parser.add_argument('--n_epoch', type=int, default=500, help='number of training epochs')
+    parser.add_argument('--n_epoch', type=int, default=1000, help='number of training epochs')
     parser.add_argument('--optimizer', type=str, default='RMSprop',
                         help='Optimizer type: must choose RMSprop, SGD or Adam. Default RMSprop')
     parser.add_argument('--lr', type=float, help='Learning rate, default 0.0001', default=0.0001)
-    parser.add_argument('--dropout', type=float, default=0.7, help='probability of dropout')
-    parser.add_argument('--lr_anneal', type=float, help='Parameter for learning rate annealing', default=2)
+    parser.add_argument('--dropout', type=float, default=0.8, help='probability of dropout')
+    parser.add_argument('--lr_anneal', type=float, help='Parameter for learning rate annealing', default=1)
     
 
     # Save
@@ -61,18 +61,16 @@ def parse_args():
     args, unknown = parser.parse_known_args()
 
     
-    args.en_embedding = args.embedding_path+"muse-en.txt"
-    args.fr_embedding = args.embedding_path+"muse-fr.txt"
+    args.en_embedding = args.embedding_path+"muse2-en.txt"
+    args.fr_embedding = args.embedding_path+"muse2-fr.txt"
     
     args.train_path = args.preprocessed_path + args.train 
     args.en_test_path = args.preprocessed_path + args.en_test
     args.fr_test_path = args.preprocessed_path + args.fr_test
 
-    args.save_name = '%s_%d_%d' % (
+    args.save_name = '%s_%d' % (
         args.save_name,
-        int(args.n_mlp_layers),
         int(args.n_hidden))
-
 
 
     return args
