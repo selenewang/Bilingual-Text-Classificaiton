@@ -37,6 +37,9 @@ The following arguments are optional:
   --lr                       Learning rate [0.0001]
   --dropout                  Probability of dropout [0.8]
   --lr_anneal                Parameter for learning rate annealing [1], or can choose to use lr_scheduler by default
+  --save_dir                 Model saving directory ['./saved_nets']
+  --save_name                Model saving prefix name ['model']
+  --device                   Device used for training (cpu or gpu) ['gpu']
 ```
 
 
